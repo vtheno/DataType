@@ -86,19 +86,14 @@ class match(object):
                 for ty,arg in zip(typs,args):
                     #print( ty,arg )
                     cls = ty.__class__
-                    if arg == ty:
-                        #print( '==',arg,ty )
+                    if arg == ty or ( (cls == type or cls == TypeMeta) and isinstance(arg,ty) ) :
                         flag += 1
-                    elif (cls == type or cls == TypeMeta) and isinstance(arg,ty):
-                        #print( arg.__name__,ty.__name__ )
-                        #print( 'isinstance',arg, ty ,cls,funcs.index(typs))
-                        flag += 1
+                        continue
                     else:
                         flag = 0
                         break
                 if flag:
                     i = funcs.index(typs)
-                    #print( self.fenv[name],i,ty,typs )
                     #yield self.fenv[name][i](*args,*kw)
                     return self.fenv[name][i](*args,*kw)
             else:
