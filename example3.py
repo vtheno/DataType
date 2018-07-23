@@ -22,3 +22,14 @@ def plus(a : Succ, b : Nat ) -> Nat:
     return plus(a.num,Succ( b ) )
 print( toInt ( plus ( one,two ) ) )
 # output => 3
+
+@match
+def toNat( i : 0) -> Nat:
+    return zero
+@match
+def toNat( i : int ) -> Nat :
+    return Succ ( toNat( i - 1 ) )
+    
+print( toNat (99) )
+                
+# match 

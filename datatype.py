@@ -1,6 +1,7 @@
 #coding=utf-8
 import sys
 from types import ModuleType as module
+from types import FunctionType
 def datatype(cls):
     """
     usage:
@@ -86,9 +87,17 @@ class match(object):
                 for ty,arg in zip(typs,args):
                     #print( ty,arg )
                     cls = ty.__class__
-                    if arg == ty or ( (cls == type or cls == TypeMeta) and isinstance(arg,ty) ) :
-                        flag += 1
-                        continue
+                    if arg == ty or ( (cls == type or cls == TypeMeta) and isinstance(arg,ty) )  or \
+                       cls == FunctionType:
+                        if cls != FunctionType:
+                            flag += 1
+                            continue
+                        else:
+                            if ty(arg):
+                                flag += 1
+                                continue
+                            else:
+                                break
                     else:
                         flag = 0
                         break
