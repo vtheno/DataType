@@ -68,6 +68,58 @@ class TypeMeta(type):
         return False
     def __repr__(self):
         return self.__name__
+class NoMatchError(Exception): pass
+class NoSupport(Exception): pass
+class match(object):
+    def __init__(self,env):
+        self.tenv = env
+        self.fenv = {} 
+    def __warp__(self,name):
+        def warp(*args,**kw):
+            if kw != {} :
+                raise NoSupport("match can not support keyword arguments")
+            funcs = [list(e.values()) for e in self.tenv[name] ]
+            args = [arg for arg in args]
+            for typs in funcs:
+                flag = 0
+                #print( flag, )
+                for ty,arg in zip(typs,args):
+                    #print( ty,arg )
+                    cls = ty.__class__
+                    if arg == ty:
+                        #print( '==',arg,ty )
+                        flag += 1
+                    elif (cls == type or cls == TypeMeta) and isinstance(arg,ty):
+                        #print( arg.__name__,ty.__name__ )
+                        #print( 'isinstance',arg, ty ,cls,funcs.index(typs))
+                        flag += 1
+                    else:
+                        flag = 0
+                        break
+                if flag:
+                    i = funcs.index(typs)
+                    #print( self.fenv[name],i,ty,typs )
+                    #yield self.fenv[name][i](*args,*kw)
+                    return self.fenv[name][i](*args,*kw)
+            else:
+                raise NoMatchError("{} => {} for type(s): {} ".format(name,repr(args),repr(typs)))
+        return warp
+    def __call__(self,func):
+        name = func.__name__
+        infos = {}
+        infos.update( func.__annotations__ )
+        if 'return' in infos.keys():
+            infos.pop('return')
+        if name not in self.fenv.keys():
+            self.fenv[name] = [ ]
+        self.fenv[name] += [ func ]
+        if name not in self.tenv.keys():
+            self.tenv[name] = [ ]
+        self.tenv[name] += [ infos ]
+        #print( self.tenv )
+        return self.__warp__(name)
+match = match( {} )
+
 class species(object):
     def __init__(self,func):
         self.func = func
@@ -97,5 +149,6 @@ class class_prop(object):
             return self.func(typ,*args,**kw)
         return wrapper()
 
-__all__ = ["TypeMeta","datatype",
+
+__all__ = ["TypeMeta","datatype","match",
            "species","static","prop","class_prop"]
