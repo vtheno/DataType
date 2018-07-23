@@ -92,7 +92,7 @@ class match(object):
                     else:
                         flag = 0
                         break
-                if flag:
+                if flag == len(typs) :
                     i = funcs.index(typs)
                     #yield self.fenv[name][i](*args,*kw)
                     return self.fenv[name][i](*args,*kw)
