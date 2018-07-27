@@ -12,7 +12,7 @@
          if isinstance(nat,Zero):
              return 0
          return 1 + toInt( nat.num )
-     zero = Zero ()
+     zero = Zero
      one = Succ ( zero )
      two = Succ ( one )
      def plus(a,b):
@@ -39,7 +39,7 @@
      @match
      def toInt(nat : Succ) -> int :
          return 1 + toInt( nat.num ) 
-     zero = Zero ()
+     zero = Zero
      one = Succ ( zero )
      two = Succ ( one )    
      @match

@@ -50,16 +50,22 @@ class TypeMeta(type):
             for l_name,args in infos.items():
                 #print( l_name,(tp,),{} )
                 l_attrs = {}
+                var = 0
                 if args == ( ):
                     init = lambda self: None
                     Repr = None
+                    var = 1
                 else:
                     init = makeinit(args)
                     Repr = makeRepr(args)
+                    var = 0
                 l_attrs.update( {'__init__':init} )
                 if Repr:
                     l_attrs.update( {"__repr__":Repr} )
-                infos[l_name] = type(l_name,(tp,),l_attrs)
+                if var:
+                    infos[l_name] = type(l_name,(tp,),l_attrs)()
+                else:
+                    infos[l_name] = type(l_name,(tp,),l_attrs)
         return tp
     def __instancecheck__(cls,instance):
         if hasattr(instance,"__name__") and hasattr(cls,"__subs__"):
@@ -124,6 +130,23 @@ class match(object):
         return self.__warp__(name)
 match = match( {} )
 
+def hook(cls_or_instance):
+    f_cls = cls_or_instance.__class__
+    def warp1(func):
+        name = func.__name__
+        setattr(f_cls,name,func)
+        return getattr(f_cls,name)
+    def warp2(func):
+        name = func.__name__
+        setattr(cls_or_instance,name,func)
+        return getattr(cls_or_instance,name)
+    if f_cls != TypeMeta and f_cls.__class__ == TypeMeta:
+        return warp1
+    elif f_cls == TypeMeta:
+        return warp2
+    else:
+        raise NoSupport("Hook no support there type(s) for: {}:".format(cls_or_instance) )
+
 class species(object):
     def __init__(self,func):
         self.func = func
@@ -154,5 +177,5 @@ class class_prop(object):
         return wrapper()
 
 
-__all__ = ["TypeMeta","datatype","match",
+__all__ = ["TypeMeta","datatype","match","hook",
            "species","static","prop","class_prop"]
