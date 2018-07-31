@@ -91,19 +91,21 @@ class match(object):
                 flag = 0
                 #print( flag, )
                 for ty,arg in zip(typs,args):
-                    #print( ty,arg )
+                    #print( "ty,arg:",ty,arg )
                     cls = ty.__class__
-                    if arg == ty or ( (cls == type or cls == TypeMeta) and isinstance(arg,ty) )  or \
-                       cls == FunctionType:
-                        if cls != FunctionType:
+                    if arg == ty :
+                        #print( arg == ty ,arg,ty)
+                        flag += 1
+                        continue
+                    elif ( (cls == type or cls == TypeMeta) and isinstance(arg,ty) ) :
+                        flag +=1 
+                        continue
+                    elif cls == FunctionType:
+                        if ty(arg):
                             flag += 1
                             continue
                         else:
-                            if ty(arg):
-                                flag += 1
-                                continue
-                            else:
-                                break
+                            break
                     else:
                         flag = 0
                         break
@@ -126,7 +128,7 @@ class match(object):
         if name not in self.tenv.keys():
             self.tenv[name] = [ ]
         self.tenv[name] += [ infos ]
-        #print( self.tenv )
+        #print( name,self.tenv[name] )
         return self.__warp__(name)
 match = match( {} )
 

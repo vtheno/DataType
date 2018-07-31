@@ -1,5 +1,6 @@
 #coding=utf-8
 from TVars import *
+from datatype import match
 def Mem( x : str , lst : [ (str,[str] ) ] ) -> bool :
     temp = lst
     while temp:
@@ -53,28 +54,29 @@ def GetTail(p , buf ,lst ):
             return ( ''.join(list(reversed(result))),temp )
     return ( ''.join(list(reversed(result))),temp )
 class GetNextTokenErr(Exception) : pass
-def GetNextToken(spectab,lst):
-    #print( "GetNextToken:",lst)
+@match 
+def GetNextToken(spectab : list ,lst : [ ]):
+    raise GetNextTokenErr("{} length < 1 !".format(temp))
+@match
+def GetNextToken(spectab : list ,lst : [Any] ):
+    return (lst[0],[])
+@match
+def GetNextToken(spectab : list ,lst : list):
     temp = lst
-    if len(temp) < 1:
-        raise GetNextTokenErr("{} length < 1 !".format(temp))
-    elif len(temp) == 1:
-        return (temp[0],[ ])
-    else:
-        x,l = temp[0],temp[1:]
-        c,cs = l[0],l[1:]
-        if IsLetter(x):
-            #print( "IsLetter" )
-            return GetTail (IsLetterOrDigit,[x],l)
-        elif IsDigit(x):
-            #print( "IsDigit")
-            return GetTail (IsDigit,[x],l)
-        elif Mem(c,Get(x,spectab)):
-            #print( "Mem" )
+    aa,bb = temp[0],temp[1:]
+    cc,dd = bb[0],bb[1:]
+    @match
+    def select(x : IsLetter,l:list,c : str,cs : list):
+        return GetTail (IsLetterOrDigit,[x],l)
+    @match
+    def select(x : IsDigit,l:list,c : str,cs : list):
+        return GetTail (IsDigit,[x],l)
+    @match
+    def select(x : str,l:list,c : str,cs : list):
+        if Mem(c,Get(x,spectab)):
             return GetSymbol( spectab,implode([x,c]),cs)
-        else:
-            #print( "otherwise")
-            return (x,l)
+        return (x,l)
+    return select(aa,bb,cc,dd)
 def Tokenise( spectab : List(Tuple(str,List(str))) , lst : List(str) ) -> List(str) :
     temp = lst
     result = [ ]

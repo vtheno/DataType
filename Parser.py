@@ -34,11 +34,17 @@ Topt = '*' Atom Topt | '/' Atom Topt
 Atom = Num ...
 """
 @match
-def atom( t : "if" ,rest : list ) :
+def atom( t : "if" ,rest : list ) -> (Any,[Str]):
     e1,rest1 = parseExpr(rest)
     e2,rest2 = parseExpr( strip("then",rest1) )
     e3,rest3 = parseExpr( strip("else",rest2) )
-    return ( (e1,e2,e3) , rest3 )
+    return ( ('if',e1,e2,e3) , rest3 )
+@match
+def atom( t : "let",rest : list ) -> (Any,[Str]):
+    name,rest1 = parseExpr(rest)
+    val,rest2 = parseExpr( strip("=",rest1) )
+    body,rest3 = parseExpr( strip("in",rest2) )
+    return ( ('let',name,val,body),rest3 )
 @match
 def atom( t : str , rest : list ):
     return ( ('sym',t),rest )
@@ -69,7 +75,8 @@ def read( inps ):
 print( read("""
 if a 
 then if b 
-     then d 
+     then let d = 233 
+          in d
      else e
 else if c
      then f
