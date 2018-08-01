@@ -118,7 +118,8 @@ class GenParser(object):
         self.s.push( acc )
         while not self.s.IsEmpty :
             print( self.s )
-            print( self.inp ,acc)
+            print( "inp:",self.inp )
+            print( "acc:",acc)
             acc = self.s.pop ()
             if self.inp == [ ]:
                 break
@@ -126,7 +127,7 @@ class GenParser(object):
                 x,xs = unpack(self.inp)
                 n,parsefn = self.symtab(x)
                 if m >= n :
-                    self.s.push( acc )##,self.inp) )
+                    #self.s.push( acc )##,self.inp) )
                     break
                 else:
                     if parsefn == Sym.ParserAtom:
