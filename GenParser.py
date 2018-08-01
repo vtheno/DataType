@@ -72,21 +72,29 @@ class GenParser(object):
         return self.Parser(m,acc)
     def SeqAux(self,funclist,m,n):
         fs = funclist
-        acc = [ ]
+        seq_acc = [ ]
         while len(fs) > 1:
             f,fs = unpack(fs)
             t,self.inp = f(0,Nil)
-            acc += [t]
+            seq_acc += [t]
         f = fs[0] # last f is Id  ,else add supoort Strip 
         t,rest1 = f(m,Nil)  # there m is (Mktree,m,[id | strip sym])
-        acc += [t]
-        return (acc,rest1)
-    def parseSeq(self,funclist,mktree,m,n,acc):
+        seq_acc += [t]
+        return (seq_acc,rest1)
+    def parseSeq(self,fs : "funclist",mktree,m,n,acc):
         # mktree = Binop | Unop : make tree 
         # Seq.m is Parser.n ,Seq.n is Parser.m
         # self.funclist is [ ID | Strip "sym"]
         drop,self.inp = unpack(self.inp)
-        l,self.inp = self.SeqAux(funclist,m,n)
+        seq_acc = [ ]
+        while len(fs) > 1:
+            f,fs = unpack(fs)
+            t,self.inp = f(0,Nil)
+            seq_acc += [t]
+        f = fs[0]           # last f is Id  ,else add supoort Strip 
+        t,rest1 = f(m,Nil)  # there m is (Mktree,m,[id | strip sym])
+        seq_acc += [t]
+        l,self.inp = seq_acc,rest1
         return self.Parser(n,mktree(acc,l))
     def Parser(self,m,acc):
         if self.inp == [ ]:
@@ -111,7 +119,7 @@ class GenParser(object):
                     elif head[0] == "unop":
                         mktree = self.unop(head[1])
                     else:
-                        raise Exception("MkTreeErr")
+                        raise Exception("MkTreeErr") # seq_m = n ,seq_n = m
                     return self.parseSeq(funclist,mktree,n,m,acc) # Seq.m = n Seq.n = m
                 elif parsefn == Sym.Terminator:
                     return self.Terminator(m)
