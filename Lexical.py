@@ -54,29 +54,23 @@ def GetTail(p , buf ,lst ):
             return ( ''.join(list(reversed(result))),temp )
     return ( ''.join(list(reversed(result))),temp )
 class GetNextTokenErr(Exception) : pass
-@match 
 def GetNextToken(spectab : list ,lst : [ ]):
-    raise GetNextTokenErr("{} length < 1 !".format(temp))
-@match
-def GetNextToken(spectab : list ,lst : [Any] ):
-    return (lst[0],[])
-@match
-def GetNextToken(spectab : list ,lst : list):
-    temp = lst
-    aa,bb = temp[0],temp[1:]
-    cc,dd = bb[0],bb[1:]
-    @match
-    def select(x : IsLetter,l:list,c : str,cs : list):
-        return GetTail (IsLetterOrDigit,[x],l)
-    @match
-    def select(x : IsDigit,l:list,c : str,cs : list):
-        return GetTail (IsDigit,[x],l)
-    @match
-    def select(x : str,l:list,c : str,cs : list):
-        if Mem(c,Get(x,spectab)):
-            return GetSymbol( spectab,implode([x,c]),cs)
-        return (x,l)
-    return select(aa,bb,cc,dd)
+    if lst == [ ]:
+        raise GetNextTokenErr("{} length < 1 !".format(temp))
+    elif lst == [Any]:
+        return (lst[0],[])
+    else:
+        temp = lst
+        x,l = temp[0],temp[1:]
+        c,cs = l[0],l[1:]
+        if IsLetter(x):
+            return GetTail (IsLetterOrDigit,[x],l)
+        elif IsDigit(x):
+            return GetTail (IsDigit,[x],l)
+        else:
+            if Mem(c,Get(x,spectab)):
+                return GetSymbol( spectab,implode([x,c]),cs)
+            return (x,l)
 def Tokenise( spectab : List(Tuple(str,List(str))) , lst : List(str) ) -> List(str) :
     temp = lst
     result = [ ]
